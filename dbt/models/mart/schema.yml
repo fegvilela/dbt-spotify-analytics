@@ -139,17 +139,3 @@ models:
           - relationships:
               to: ref('dim_artists')
               field: artist_id
-
-  - name: fct_top_artists
-    columns:
-      - name: artist_id
-        description: Foreign key to artists table
-        tests:
-          - relationships:
-              to: ref('dim_artists')
-              field: artist_id
-      - name: artist_rank
-        description: rank of artist
-        tests:
-          - dbt_utils.expression_is_true:
-              expression: "artist_rank >= 1"

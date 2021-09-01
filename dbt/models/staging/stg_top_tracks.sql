@@ -1,15 +1,15 @@
 -- stage_top_tracks
-with source as (
-    select
+WITH source AS (
+    SELECT
         *
-    from {{ ref('top_tracks') }}
+    FROM
+        {{ ref ('top_tracks') }}
 ),
-
-stage_top_tracks as (
-    select
+stage_top_tracks AS (
+    SELECT
         track_rank,
         track_id,
-    	track_name,
+        track_name,
         track_duration,
         track_is_explicit,
         track_popularity,
@@ -35,8 +35,10 @@ stage_top_tracks as (
         artist_followers,
         artist_genre,
         artist_genre_others
-    from source
+    FROM
+        source
 )
-select
+SELECT
     *
-from stage_top_tracks
+FROM
+    stage_top_tracks

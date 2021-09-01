@@ -7,8 +7,9 @@ mv /dbt/spotify_analytics/profiles.yml /root/.dbt/profiles.yml
 cd /dbt/spotify_analytics &&
 dbt debug &&
 dbt deps &&
-dbt seed &&
-dbt run &&
-dbt test &&
-dbt docs generate &&
-dbt docs serve
+dbt seed
+# &&
+# dbt run &&
+# dbt test &&
+# dbt docs generate &&
+# dbt docs serve

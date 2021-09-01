@@ -1,19 +1,22 @@
 -- top_tracks table
-with source as (
-    select
+WITH source AS (
+    SELECT
         *
-    from {{ ref('stg_top_tracks') }}
+    FROM
+        {{ ref('stg_top_tracks') }}
 ),
-fact_top_tracks as (
-    select
+fact_top_tracks AS (
+    SELECT
         track_rank,
         track_id,
         album_id,
         artist_name_others,
         artist_id,
         artist_id_others
-    from source
+    FROM
+        source
 )
-select
+SELECT
     *
-from fact_top_tracks
+FROM
+    fact_top_tracks

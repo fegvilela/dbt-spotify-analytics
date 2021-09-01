@@ -1,11 +1,12 @@
 -- songplays table
-with source as (
-    select
+WITH source AS (
+    SELECT
         *
-    from {{ ref('stg_songplays') }}
+    FROM
+        {{ ref('stg_songplays') }}
 ),
-fact_songplays as (
-    select
+fact_songplays AS (
+    SELECT
         songplays_id,
         track_id,
         track_played_at,
@@ -13,8 +14,10 @@ fact_songplays as (
         artist_id,
         artist_id_others,
         artist_name_others
-    from source
+    FROM
+        source
 )
-select
+SELECT
     *
-from fact_songplays
+FROM
+    fact_songplays

@@ -1,18 +1,22 @@
--- songplays_albums table
-with songplay_albums as (
-    select
+-- songplays_albums TABLE
+WITH songplay_albums AS (
+    SELECT
         f.*,
-        a.album_name,
-        a.album_release_year,
-        a.album_type,
+        A.album_name,
+        A.album_release_year,
+        A.album_type,
         t.track_name,
         track_popularity,
         track_danceability,
         track_speechiness
-    from {{ ref('fct_songplays') }} f
-    left join {{ ref('dim_tracks') }} t using (track_id)
-    left join {{ ref('dim_albums') }} a using (album_id)
+    FROM
+        {{ ref ('fct_songplays') }}
+        f
+        LEFT JOIN {{ ref ('dim_tracks') }}
+        t USING (track_id)
+        LEFT JOIN {{ ref ('dim_albums') }} A USING (album_id)
 )
-select
+SELECT
     *
-from songplay_albums
+FROM
+    songplay_albums

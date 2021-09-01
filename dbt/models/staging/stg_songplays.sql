@@ -1,15 +1,15 @@
 -- stage_songplays
-with source as (
-    select 
+WITH source AS (
+    SELECT
         *
-    from {{ ref('songplays') }}
+    FROM
+        {{ ref ('songplays') }}
 ),
-
-stage_songplays as (
-    select
+stage_songplays AS (
+    SELECT
         songplays_id,
         track_id,
-    	track_name,
+        track_name,
         track_duration,
         track_is_explicit,
         track_popularity,
@@ -36,8 +36,10 @@ stage_songplays as (
         artist_followers,
         artist_genre,
         artist_genre_others
-    from source
+    FROM
+        source
 )
-select
+SELECT
     *
-from stage_songplays
+FROM
+    stage_songplays

@@ -1,19 +1,27 @@
--- songplays_genres table
-with artist_genres as (
-    select
-        a.artist_genre
-    from {{ ref('fct_songplays') }} f
-    left join {{ ref('dim_artists') }} a using (artist_id)
-    union all
-    select
-        unnest(string_to_array(a.artist_genre_others, ', ')) as artist_genre
-    from {{ ref('fct_songplays') }} f
-    left join {{ ref('dim_artists') }} a using (artist_id)
+-- songplays_genres TABLE
+WITH artist_genres AS (
+    SELECT
+        A.artist_genre
+    FROM
+        {{ ref ('fct_songplays') }}
+        f
+        LEFT JOIN {{ ref ('dim_artists') }} A USING (artist_id)
+    UNION ALL
+    SELECT
+        unnest(string_to_array(A.artist_genre_others, ', ')) AS artist_genre
+    FROM
+        {{ ref ('fct_songplays') }}
+        f
+        LEFT JOIN {{ ref ('dim_artists') }} A USING (artist_id)
 )
-select
+SELECT
     *,
-    count(*) as count
-from artist_genres
-where artist_genre is not null
-group by artist_genre       
-order by count desc
+    COUNT(*) AS COUNT
+FROM
+    artist_genres
+WHERE
+    artist_genre IS NOT NULL
+GROUP BY
+    artist_genre
+ORDER BY
+    COUNT DESC
