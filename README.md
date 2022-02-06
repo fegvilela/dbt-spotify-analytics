@@ -119,7 +119,7 @@ Then you can navigate through, play around, and analyze your data.
 
 ## Questions
 
-- What are the more common tracks in my playlists?
+- What are the most common tracks in my playlists?
 - Avg length of playlists?
 - What are my favourites (most listened - top 5) genres in my playlists?
 - What are my favourites (most listened - top 10) artists in my playlists?

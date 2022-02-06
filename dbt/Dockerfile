@@ -1,3 +1,4 @@
+# FROM fishtownanalytics/dbt:0.19.2rc2
 FROM python:3.8.5
 
 # Update and install system packages

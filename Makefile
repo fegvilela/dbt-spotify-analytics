@@ -12,3 +12,7 @@ clean:
 	@echo "--DELETING venv and pycache--";
 	@rm -r venv; find . | grep -E "(.cache|debug.log|.csv)" | xargs rm -rf;
 	@find . | grep -E "(__pycache__|.pytest_cache)" | xargs rm -rf;
+
+up-dbt:
+	@echo "--initializing db and dbt containers--";
+	@docker compose up postgres dbt

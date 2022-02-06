@@ -1,28 +1,59 @@
 version: 2
 
 models:
-  - name: stg_songplays
+  - name: stg_playlist_items
     columns:
-      - name: track_id
+      - name: track_key
         tests:
           - not_null
-      - name: artist_id
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - track_key
+                - album_key
+              config:
+                store_failures: true
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - track_key
+                - artist_key
+              config:
+                store_failures: true
+      - name: playlist_key
         tests:
           - not_null
-  
-  - name: stg_top_artists
+          - relationships:
+              to: ref('current_user_playlists')
+              field: playlist_id
+              config:
+                store_failures: true # always store failures
+      - name: artist_key
+        tests:
+          - not_null
+      - name: album_key
+        tests:
+          - not_null
+      - name: track_duration
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: album_type
+        tests:
+          - accepted_values:
+              values: ["album", "single", "compilation"]
+  - name: stg_playlists
     columns:
-      - name: artist_id
+      - name: playlist_key
         tests:
           - not_null
-          - unique
-  
-  - name: stg_top_tracks
-    columns:
-      - name: track_id
+          - unique:
+              config:
+                store_failures: true # always store failures
+      - name: playlist_name
         tests:
           - not_null
-          - unique
-      - name: artist_id
+      - name: playlist_size
         tests:
-          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
