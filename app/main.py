@@ -5,9 +5,9 @@ import os
 ITEM_LIMIT = 50
 DATA_PATH = "data"
 DATA_DICT = {
-    "current_user_top_artists": "user-top-read",
-    "current_user_recently_played": "user-read-recently-played",
-    "current_user_top_tracks": "user-top-read",
+    # "current_user_top_artists": "user-top-read",
+    # "current_user_recently_played": "user-read-recently-played",
+    # "current_user_top_tracks": "user-top-read",
     "current_user_playlists": "playlist-read-private",
 }
 

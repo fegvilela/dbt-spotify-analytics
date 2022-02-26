@@ -5,6 +5,7 @@ from typing import Union
 import pandas as pd
 import spotipy
 import spotipy.util as util
+import ipdb
 
 
 class SpotifyUtil:
@@ -59,14 +60,15 @@ class SpotifyUtil:
         if query == "current_user_playlists":
             items = []
 
+            ipdb.set_trace()
             for index in self.df.index.tolist():
                 json_items = getattr(self.session, "playlist_items")(
-                    limit=100, playlist_id=self.df.at[index, "playlist_id"]
+                    limit=100, playlist_id=self.df.at[index, "id"]
                 )
                 if len(json_items["items"]) > 0:
                     playlist_items, columns = getattr(
                         self, self.query_dict["playlist_items"]
-                    )(data=json_items, playlist_id=self.df.at[index, "playlist_id"])
+                    )(data=json_items, playlist_id=self.df.at[index, "id"])
                     items.append(playlist_items)
 
             df_items = pd.concat(items)
@@ -91,17 +93,31 @@ class SpotifyUtil:
         """
         Parses response data in JSON format
         """
-        if not (kwargs.get("result_key") == None):
-            data = data[kwargs["result_key"]]
-        df = pd.json_normalize(data).reset_index()
+        # ipdb.set_trace()
+        if not (is_all_none(data)):
+            if not (kwargs.get("result_key") == None):
+                data = data[kwargs["result_key"]]
+            df = pd.json_normalize(data).reset_index()
 
-        if "id" in columns.values():
-            df = df.dropna(subset=["id"])
+            if "id" in columns.keys():
+                print("TO AQUI NO IF")
+                # try:
+                subset = []
+                subset.append(get_dict_key(val="id", dict=columns))
+                df = df.dropna()
+                # except KeyError:
+                #     print(f"there's no id key at these columns {columns.keys()}")
 
-        df["index"] = df["index"] + 1
-        df = df[columns.keys()].rename(columns=columns)
+                df["index"] = df["index"] + 1
+                df = df[columns.keys()].rename(columns=columns)
+            else:
+                print("NAO TO AQUI NO IF")
 
-        return df
+                df["index"] = df["index"] + 1
+                df = df[columns.keys()].rename(columns=columns)
+            return df
+        else:
+            print("data is empty")
 
     def parse_primary_other(self, parse_list: list = []) -> Union[str, str]:
         """
@@ -151,17 +167,21 @@ class SpotifyUtil:
             df = df.dropna(subset=[key])
 
             for values_list in self.split_in_chunks(df[key].values.tolist(), 50):
+                # ipdb.set_trace()
                 try:
                     features = getattr(self.session, method)(values_list)
                 except:
                     print("An error occured when trying to get attributes")
+
+                if is_all_none(features):
+                    print(
+                        f"!!!!!!!!! EMPTY method {method} result_key {result_key} key {key}"
+                    )
                 features_df = self.parse_json(
                     data=features, columns=columns, result_key=result_key
                 )
                 # Parse genres
-                unfold_list_column(
-                    df=features_df, key="artist_genres", singular_key="artist_genre"
-                )
+                unfold_list_column(df=features_df, key="genres", singular_key="genre")
 
                 features_df.drop_duplicates(subset=key, inplace=True)
                 df = df.merge(features_df, how="outer")
@@ -182,64 +202,62 @@ class SpotifyUtil:
                 )
                 df.drop(columns=[key], axis=1, inplace=True)
 
-        if columns is None:
-            columns = {
-                "index": "songplays_id",
-                "track.id": "track_id",
-                "track.name": "track_name",
-                "track.artists": "artists",
-                "track.duration_ms": "track_duration",
-                "track.explicit": "track_is_explicit",
-                "track.popularity": "track_popularity",
-                "played_at": "track_played_at",
-                "track.album.id": "album_id",
-                "track.album.name": "album_name",
-                "track.album.release_date": "album_release_year",
-                "track.album.type": "album_type",
-            }
+        # if columns is None:
+        #     columns = {
+        #         "index": "songplays_id",
+        #         "track.id": "id",
+        #         "track.name": "name",
+        #         "track.artists": "artists",
+        #         "track.duration_ms": "duration",
+        #         "track.explicit": "is_explicit",
+        #         "track.popularity": "popularity",
+        #         "played_at": "played_at",
+        #         "track.album.id": "album_id",
+        #         "track.album.name": "album_name",
+        #         "track.album.release_date": "album_release_year",
+        #         "track.album.type": "album_type",
+        #     }
+
+        songplays = self.parse_json(data=data, columns=columns, result_key="items")
 
         track_features_columns = {
             "id": "track_id",
-            "danceability": "track_danceability",
-            "energy": "track_energy",
-            "key": "track_key",
-            "loudness": "track_loudness",
-            "mode": "track_mode",
-            "speechiness": "track_speechiness",
-            "acousticness": "track_acousticness",
-            "instrumentalness": "track_instrumentalness",
-            "liveness": "track_liveness",
-            "valence": "track_valence",
+            "danceability": "danceability",
+            "energy": "energy",
+            "key": "key",
+            "loudness": "loudness",
+            "mode": "mode",
+            "speechiness": "speechiness",
+            "acousticness": "acousticness",
+            "instrumentalness": "instrumentalness",
+            "liveness": "liveness",
+            "valence": "valence",
         }
 
         artist_features_columns = {
             "id": "artist_id",
-            "genres": "artist_genres",
-            "popularity": "artist_popularity",
-            "followers.total": "artist_followers",
+            "genres": "genres",
+            "popularity": "popularity",
+            "followers.total": "followers",
         }
 
-        songplays = self.parse_json(data=data, columns=columns, result_key="items")
-
         (
-            songplays["artist_name"],
-            songplays["artist_name_others"],
-            songplays["artist_id"],
-            songplays["artist_id_others"],
+            songplays["name"],
+            songplays["name_others"],
+            songplays["id"],
+            songplays["id_others"],
         ) = zip(*songplays["artists"].apply(parse_artist))
 
         # Convert timestamp
         try:
-            songplays["track_played_at"] = songplays["track_played_at"].apply(
+            songplays["played_at"] = songplays["played_at"].apply(
                 lambda x: pd.Timestamp(x).strftime("%Y-%m-%d %H:%M:%S")
             )
         except KeyError:
             pass
 
         # Convert track duration
-        songplays["track_duration"] = songplays["track_duration"].apply(
-            lambda x: x / 60000
-        )
+        songplays["duration"] = songplays["duration"].apply(lambda x: x / 60000)
 
         songplays["album_release_year"] = songplays["album_release_year"].apply(
             lambda x: parse_year(x)
@@ -247,7 +265,7 @@ class SpotifyUtil:
         # Get track features
 
         songplays = get_features(
-            key="track_id",
+            key="id",
             method="audio_features",
             df=songplays,
             columns=track_features_columns,
@@ -256,16 +274,14 @@ class SpotifyUtil:
         # Get artist features
 
         songplays = get_features(
-            key="artist_id",
+            key="id",
             method="artists",
             df=songplays,
             columns=artist_features_columns,
             result_key="artists",
         )
         # Parse genres
-        unfold_list_column(
-            df=songplays, key="artist_genres", singular_key="artist_genre"
-        )
+        unfold_list_column(df=songplays, key="genres", singular_key="genre")
 
         return songplays
 
@@ -274,21 +290,21 @@ class SpotifyUtil:
         Parses top artists of user
         """
         columns = {
-            "index": "artist_rank",
-            "id": "artist_id",
-            "name": "artist_name",
-            "genres": "artist_genres",
-            "popularity": "artist_popularity",
-            "followers.total": "artist_followers",
+            "index": "rank",
+            "id": "id",
+            "name": "name",
+            "genres": "genres",
+            "popularity": "popularity",
+            "followers.total": "followers",
         }
 
         top_artists = self.parse_json(data=data, columns=columns, result_key="items")
         # Parse genres
-        (top_artists["artist_genre"], top_artists["artist_genre_others"]) = zip(
-            *top_artists["artist_genres"].apply(self.parse_primary_other)
+        (top_artists["genre"], top_artists["genre_others"]) = zip(
+            *top_artists["genres"].apply(self.parse_primary_other)
         )
 
-        top_artists.drop(columns=["artist_genres"], axis=1, inplace=True)
+        top_artists.drop(columns=["genres"], axis=1, inplace=True)
         return top_artists
 
     def parse_tracks(self, data: dict) -> pd.DataFrame:
@@ -296,13 +312,13 @@ class SpotifyUtil:
         Parses top tracks of user
         """
         columns = {
-            "index": "track_rank",
-            "id": "track_id",
-            "name": "track_name",
+            "index": "rank",
+            "id": "id",
+            "name": "name",
             "artists": "artists",
-            "duration_ms": "track_duration",
-            "explicit": "track_is_explicit",
-            "popularity": "track_popularity",
+            "duration_ms": "duration",
+            "explicit": "is_explicit",
+            "popularity": "popularity",
             "album.id": "album_id",
             "album.name": "album_name",
             "album.release_date": "album_release_year",
@@ -317,12 +333,12 @@ class SpotifyUtil:
         Parses playlists of user
         """
         columns = {
-            "index": "playlist_rank",
-            "id": "playlist_id",
-            "name": "playlist_name",
-            "tracks.total": "playlist_size",
-            "public": "playlist_is_public",
-            "collaborative": "playlist_is_collaborative",
+            "index": "rank",
+            "id": "id",
+            "name": "name",
+            "tracks.total": "size",
+            "public": "is_public",
+            "collaborative": "is_collaborative",
         }
 
         playlists = self.parse_json(data=data, columns=columns, result_key="items")
@@ -347,3 +363,21 @@ class SpotifyUtil:
     def split_in_chunks(self, lst: list, n: int) -> list:
         for i in range(0, len(lst), n):
             yield lst[i : i + n]
+
+
+def get_dict_key(val, dict: dict) -> str:
+    """function to return key for any value"""
+    for key, value in dict.items():
+        if val == value:
+            return key
+
+    raise KeyError("key doesn't exist")
+
+
+def is_all_none(list_of_elem: list) -> bool:
+    """Check if all elements in list are None"""
+    result = True
+    for elem in list_of_elem:
+        if elem is not None:
+            return False
+    return result
