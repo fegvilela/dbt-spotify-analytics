@@ -20,3 +20,5 @@ debug.log
 */.DS_Store
 db/*
 dbt_target/*
+
+.vscode
