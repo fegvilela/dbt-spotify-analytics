@@ -1,10 +1,10 @@
--- stage_top_tracks
+-- stage_playlist_items
 with source as (
     select
         *
     from {{ ref('playlist_items') }}
 ),
-stage_top_tracks as (
+stage_playlist_items as (
     select
         track_rank,
         track_id as track_key,
@@ -23,7 +23,7 @@ stage_top_tracks as (
         artist_id_others as artist_key_others,
         track_danceability,
         track_energy,
-        track_key as track_music_key,
+        track_key as track_musickey,
         track_loudness,
         track_mode,
         track_speechiness,
@@ -42,4 +42,4 @@ stage_top_tracks as (
 select
     *
 from
-    stage_top_tracks
+    stage_playlist_items

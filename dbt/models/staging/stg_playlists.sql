@@ -7,6 +7,7 @@ with source as (
 
 stage_playlists as (
     select
+        playlist_rank,
         playlist_id as playlist_key,
         playlist_name,
         playlist_size,

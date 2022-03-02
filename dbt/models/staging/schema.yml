@@ -3,29 +3,24 @@ version: 2
 models:
   - name: stg_playlist_items
     columns:
+      - name: track_rank
       - name: track_key
         tests:
           - not_null
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns:
                 - track_key
-                - album_key
-              config:
-                store_failures: true
-          - dbt_utils.unique_combination_of_columns:
-              combination_of_columns:
-                - track_key
-                - artist_key
+                - playlist_key
               config:
                 store_failures: true
       - name: playlist_key
         tests:
           - not_null
-          # - relationships:
-          #     to: ref('current_user_playlists')
-          #     field: playlist_id
-          #     config:
-          #       store_failures: true # always store failures
+          - relationships:
+              to: ref('stg_playlists')
+              field: playlist_key
+              config:
+                store_failures: true # always store failures
       - name: artist_key
         tests:
           - not_null
@@ -41,8 +36,55 @@ models:
         tests:
           - accepted_values:
               values: ["album", "single", "compilation"]
+      - name: track_name
+      - name: artists
+      - name: track_is_explicit
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: track_popularity
+        tests:
+          - not_null
+      - name: album_key
+      - name: album_name
+      - name: album_release_year
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1200
+              inclusive: true
+      - name: artist_name
+        tests:
+          - not_null
+      - name: artist_name_others
+      - name: artist_key_others
+      - name: track_danceability
+      - name: track_energy
+      - name: track_musickey
+        tests:
+          - not_null
+      - name: track_loudness
+      - name: track_mode
+      - name: track_speechiness
+      - name: track_acousticness
+      - name: track_instrumentalness
+      - name: track_liveness
+      - name: track_valence
+      - name: artist_popularity
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: artist_followers
+      - name: artist_genre
+        tests:
+          - not_null
+      - name: artist_genre_others
+
   - name: stg_playlists
     columns:
+      - name: playlist_rank
       - name: playlist_key
         tests:
           - not_null
@@ -57,3 +99,13 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: false
+      - name: playlist_is_public
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: playlist_is_collaborative
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
