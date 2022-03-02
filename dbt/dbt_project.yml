@@ -37,7 +37,10 @@ models:
     materialized: table
     # Applies to all files under models/staging/
     staging:
-      materialized: view
+      materialized: table
     # Applies to all files under models/view/
     view:
       materialized: view
+
+# seeds:
+#   +schema: seed_data

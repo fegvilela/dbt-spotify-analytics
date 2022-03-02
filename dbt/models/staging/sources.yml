@@ -1,0 +1,71 @@
+version: 2
+
+sources:
+  - name: datalake
+    description: Data from application database, brought in by an EL process.
+    tables:
+      - name: playlists
+        columns:
+          - name: playlist_rank
+            tests:
+              - not_null
+          - name: playlist_id
+            tests:
+              - not_null
+              - unique
+          - name: playlist_name
+            tests:
+              - not_null
+          - name: playlist_size
+            tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: false
+          - name: playlist_is_public
+            tests:
+              - not_null
+          - name: playlist_is_collaborative
+            tests:
+              - not_null
+
+      - name: playlist_items
+        columns:
+          - name: track_rank
+          - name: track_id
+          - name: track_name
+          - name: artists
+          - name: track_duration
+            tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: false
+          - name: track_is_explicit
+          - name: track_popularity
+          - name: album_id
+          - name: album_name
+          - name: album_release_year
+          - name: album_type
+          - name: artist_name
+          - name: artist_name_others
+          - name: artist_id
+          - name: artist_id_others
+          - name: track_danceability
+          - name: track_energy
+          - name: track_key
+          - name: track_loudness
+          - name: track_mode
+          - name: track_speechiness
+          - name: track_acousticness
+          - name: track_instrumentalness
+          - name: track_liveness
+          - name: track_valence
+          - name: artist_popularity
+          - name: artist_followers
+          - name: artist_genre
+          - name: artist_genre_others
+          - name: playlist_id
+            tests:
+              - relationships:
+                  to: source('datalake', 'playlists')
+                  field: playlist_id
