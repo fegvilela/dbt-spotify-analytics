@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ [ -d /spotify_analytics ]]; then
+if [[ -d /spotify_analytics ]]; then
 	echo "spotify_analytics exists"
 else
 	echo "spotify_analytics doesnt exist"
@@ -12,7 +12,7 @@ mv /dbt/spotify_analytics/profiles.yml /root/.dbt/profiles.yml &&
 cd /dbt/spotify_analytics &&
 dbt debug &&
 dbt deps &&
-dbt seed &&
+dbt seed --full-refresh &&
 tail -f /dev/null
 # dbt run &&
 # dbt test &&
