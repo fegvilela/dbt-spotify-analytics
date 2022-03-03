@@ -23,3 +23,6 @@ dbt_target/*
 
 .vscode
 
+dbt_modules/
+.user.yml
+logs/
